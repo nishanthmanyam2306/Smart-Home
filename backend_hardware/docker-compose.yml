@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  # MySQL Server Instance
+  mysql_db:
+    image: mysql:8.0
+    container_name: smarthome_mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_security_password_99
+      MYSQL_DATABASE: smarthome_db
+      MYSQL_USER: smart_operator
+      MYSQL_PASSWORD: operator_password_77
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - smarthome_network
+
+  # Mosquitto MQTT Broker
+  mqtt_broker:
+    image: eclipse-mosquitto:latest
+    container_name: smarthome_mqtt_broker
+    restart: always
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - smarthome_network
+
+  # FastAPI REST Backend Service
+  fastapi_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smarthome_fastapi_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - MYSQL_HOST=mysql_db
+      - MYSQL_PORT=3306
+      - MYSQL_DB=smarthome_db
+      - MYSQL_USER=smart_operator
+      - MYSQL_PASSWORD=operator_password_77
+      - JWT_SECRET_KEY=b3dfa79109033ce54029198f161830219ca7b9696ee6da3dd5b9be6db32ec8fb
+    depends_on:
+      - mysql_db
+    networks:
+      - smarthome_network
+
+volumes:
+  mysql_data:
+
+networks:
+  smarthome_network:
+    driver: bridge

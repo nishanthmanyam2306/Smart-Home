@@ -1,0 +1,6 @@
+{
+  "name": "Smart Home",
+  "description": "Enterprise-grade Smart Home control and monitoring platform. Fully featured Android client with Room database, scheduling, automation engine, and custom styles.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
